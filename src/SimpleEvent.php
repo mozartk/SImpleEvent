@@ -2,13 +2,14 @@
 
 namespace mozartk\SimpleEvent;
 
-
 use mozartk\SimpleEvent\Exception\CannotFindTypesException;
 use mozartk\SimpleEvent\Exception\EmptyFunctionArraysException;
+use mozartk\SimpleEvent\Exception\FunctionExistsButExpiredException;
 
 class SimpleEvent
 {
     private $functions = array();
+    private $callsRemaining = array();
     public function __construct()
     {
     }
@@ -30,6 +31,31 @@ class SimpleEvent
     public function set($type, callable $function)
     {
         $this->functions[$type] = $function;
+        $this->callsRemaining[$type] = -1;
+    }
+
+    public function one($type, callable $function)
+    {
+        $this->set($type, $function);
+        $this->callsRemaining[$type] = 1;
+    }
+
+    public function setWithCount($type, callable $function, $count)
+    {
+        $this->set($type, $function);
+        $this->callsRemaining[$type] = $count;
+    }
+
+    private function getCount($type)
+    {
+        return $this->callsRemaining[$type];
+    }
+
+    private function descCount($type)
+    {
+        if($this->callsRemaining[$type] > 0) {
+            $this->callsRemaining[$type]--;
+        }
     }
 
     public function emit()
@@ -46,12 +72,18 @@ class SimpleEvent
             throw new CannotFindTypesException();
         }
 
+        if($this->getCount($arr['type']) === 0) {
+            throw new FunctionExistsButExpiredException();
+        }
+
         if(is_callable($this->functions[$arr['type']])){
             if($arr['param'] !== null) {
                 $return = call_user_func_array($this->functions[$arr['type']], $arr['param']);
             } else {
                 $return = call_user_func($this->functions[$arr['type']]);
             }
+
+            $this->descCount($arr['type']);
         }
 
         return $return;

@@ -57,4 +57,35 @@ class SimpleEventTest extends TestCase
 
         $event->emit("IveNeverMadeTypes");
     }
+
+    /**
+     * @expectedException \mozartk\SimpleEvent\Exception\FunctionExistsButExpiredException
+     */
+    public function testDefineOnes()
+    {
+        $event = new SimpleEvent();
+        $event->one("testEvent", function(){
+            return 1;
+        });
+
+        $event->emit("testEvent");
+        $event->emit("testEvent");
+    }
+
+    /**
+     * @expectedException \mozartk\SimpleEvent\Exception\FunctionExistsButExpiredException
+     */
+    public function testDefineWithCount()
+    {
+        $event = new SimpleEvent();
+        $event->setWithCount("testEvent", function(){
+            return 1;
+        }, 3);
+
+        $event->emit("testEvent");
+        $event->emit("testEvent");
+        $event->emit("testEvent");
+        $event->emit("testEvent"); //Will fire an exception on this line.
+        $event->emit("IveNeverMadeTypes");
+    }
 }
