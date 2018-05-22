@@ -3,6 +3,9 @@
 namespace mozartk\SimpleEvent;
 
 
+use mozartk\SimpleEvent\Exception\CannotFindTypesException;
+use mozartk\SimpleEvent\Exception\EmptyFunctionArraysException;
+
 class SimpleEvent
 {
     private $functions = array();
@@ -14,7 +17,7 @@ class SimpleEvent
     {
         $type = array_shift($args);
         $param = null;
-        if($args !== null) {
+        if(count($args) !== 0) {
             $param = $args;
         }
 
@@ -33,6 +36,16 @@ class SimpleEvent
     {
         $arr = $this->splitArgv(func_get_args());
         $return = null;
+
+        if(count($this->functions) === 0)
+        {
+            throw new EmptyFunctionArraysException();
+        }
+
+        if(!array_key_exists($arr['type'], $this->functions)) {
+            throw new CannotFindTypesException();
+        }
+
         if(is_callable($this->functions[$arr['type']])){
             if($arr['param'] !== null) {
                 $return = call_user_func_array($this->functions[$arr['type']], $arr['param']);

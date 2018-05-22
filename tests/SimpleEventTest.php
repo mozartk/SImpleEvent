@@ -35,4 +35,26 @@ class SimpleEventTest extends TestCase
 
         $this->assertEquals($paramStr, $returnStr);
     }
+
+    /**
+     * @expectedException \mozartk\SimpleEvent\Exception\EmptyFunctionArraysException
+     */
+    public function testWithEmptyFunctionArrays()
+    {
+        $event = new SimpleEvent();
+        $event->emit('runEmptyArrays');
+    }
+
+    /**
+     * @expectedException \mozartk\SimpleEvent\Exception\CannotFindTypesException
+     */
+    public function testUnregisteredTypes()
+    {
+        $event = new SimpleEvent();
+        $event->set("testEvent", function(){
+            return 1;
+        });
+
+        $event->emit("IveNeverMadeTypes");
+    }
 }
