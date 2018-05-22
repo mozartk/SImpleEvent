@@ -46,8 +46,29 @@ class SimpleEvent
         $this->callsRemaining[$type] = $count;
     }
 
-    private function getCount($type)
+    public function remove($type)
     {
+        if(!array_key_exists($type, $this->functions)) {
+            throw new CannotFindTypesException();
+        }
+
+        unset($this->functions[$type]);
+        unset($this->callsRemaining[$type]);
+    }
+
+    /**
+     * Check emit expiration.
+     *
+     * @param string $type
+     * @return int
+     * @throws CannotFindTypesException
+     */
+    public function getCount($type)
+    {
+        if(!array_key_exists($type, $this->functions)) {
+            throw new CannotFindTypesException();
+        }
+
         return $this->callsRemaining[$type];
     }
 

@@ -55,7 +55,7 @@ class SimpleEventTest extends TestCase
             return 1;
         });
 
-        $event->emit("IveNeverMadeTypes");
+        $event->emit("IveNeverDefinedTypes");
     }
 
     /**
@@ -86,6 +86,92 @@ class SimpleEventTest extends TestCase
         $event->emit("testEvent");
         $event->emit("testEvent");
         $event->emit("testEvent"); //Will fire an exception on this line.
-        $event->emit("IveNeverMadeTypes");
+        $event->emit("IveNeverDefinedTypes");
+    }
+
+    public function testCheckCount()
+    {
+        $type = "testEvent";
+        $event = new SimpleEvent();
+        $event->setWithCount($type, function(){
+            return 1;
+        }, 3);
+
+        $check1 = $event->getCount($type);
+        $event->emit($type);
+
+        $check2 = $event->getCount($type);
+
+        $this->assertEquals(($check1-1), $check2);
+    }
+
+
+
+    public function testCheckCountWithoutLimit()
+    {
+        $type = "testEvent";
+        $event = new SimpleEvent();
+        $event->set($type, function(){
+            return 1;
+        });
+
+        $check1 = $event->getCount($type);
+        $event->emit($type);
+
+        $check2 = $event->getCount($type);
+
+        $this->assertEquals($check1, $check2);
+    }
+
+    /**
+     * @expectedException \mozartk\SimpleEvent\Exception\CannotFindTypesException
+     */
+    public function testCheckCountWithoutDefinedFunction()
+    {
+        $type = "testEvent";
+        $event = new SimpleEvent();
+        $event->set($type, function(){
+            return 1;
+        });
+
+        $event->getCount("IveNeverDefinedTypes");
+    }
+
+    /**
+     * @expectedException \mozartk\SimpleEvent\Exception\CannotFindTypesException
+     */
+    public function testRemoveCheck()
+    {
+        $type = "testEvent";
+        $type2 = "testEvent2";
+        $event = new SimpleEvent();
+        $event->set($type, function(){
+            return 1;
+        });
+
+        $event->set($type2, function(){
+            return 1;
+        });
+        $event->remove($type);
+        $event->remove($type);
+    }
+
+    /**
+     * @expectedException \mozartk\SimpleEvent\Exception\CannotFindTypesException
+     */
+    public function testRemoveAndCallFunction()
+    {
+        $type = "testEvent";
+        $type2 = "testEvent2";
+        $event = new SimpleEvent();
+        $event->set($type, function(){
+            return 1;
+        });
+
+        $event->set($type2, function(){
+            return 1;
+        });
+        $event->remove($type);
+        $event->emit($type);
     }
 }
