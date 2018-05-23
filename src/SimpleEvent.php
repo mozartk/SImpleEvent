@@ -18,7 +18,7 @@ class SimpleEvent
     private function splitArgv($args)
     {
         $type = array_shift($args);
-        if(!is_string($type)) {
+        if (!is_string($type)) {
             throw new EmitTypeException();
         }
 
@@ -48,7 +48,7 @@ class SimpleEvent
 
     public function remove($type)
     {
-        if(!array_key_exists($type, $this->functions)) {
+        if (!array_key_exists($type, $this->functions)) {
             throw new CannotFindTypesException();
         }
 
@@ -65,7 +65,7 @@ class SimpleEvent
      */
     public function getCount($type)
     {
-        if(!array_key_exists($type, $this->functions)) {
+        if (!array_key_exists($type, $this->functions)) {
             throw new CannotFindTypesException();
         }
 
@@ -74,7 +74,7 @@ class SimpleEvent
 
     private function descCount($type)
     {
-        if($this->callsRemaining[$type] > 0) {
+        if ($this->callsRemaining[$type] > 0) {
             $this->callsRemaining[$type]--;
         }
     }
@@ -84,20 +84,19 @@ class SimpleEvent
         $arr = $this->splitArgv(func_get_args());
         $return = null;
 
-        if(count($this->functions) === 0)
-        {
+        if (count($this->functions) === 0) {
             throw new EmptyFunctionArraysException();
         }
 
-        if(!array_key_exists($arr['type'], $this->functions)) {
+        if (!array_key_exists($arr['type'], $this->functions)) {
             throw new CannotFindTypesException();
         }
 
-        if($this->getCount($arr['type']) === 0) {
+        if ($this->getCount($arr['type']) === 0) {
             throw new FunctionExistsButExpiredException();
         }
 
-        if(is_callable($this->functions[$arr['type']])){
+        if (is_callable($this->functions[$arr['type']])) {
             $return = call_user_func_array($this->functions[$arr['type']], $arr['param']);
 
             $this->descCount($arr['type']);
@@ -105,5 +104,4 @@ class SimpleEvent
 
         return $return;
     }
-
 }
