@@ -3,6 +3,7 @@
 namespace mozartk\SimpleEvent;
 
 use mozartk\SimpleEvent\Exception\CannotFindTypesException;
+use mozartk\SimpleEvent\Exception\EmitTypeException;
 use mozartk\SimpleEvent\Exception\EmptyFunctionArraysException;
 use mozartk\SimpleEvent\Exception\FunctionExistsButExpiredException;
 
@@ -17,14 +18,13 @@ class SimpleEvent
     private function splitArgv($args)
     {
         $type = array_shift($args);
-        $param = null;
-        if(count($args) !== 0) {
-            $param = $args;
+        if(!is_string($type)) {
+            throw new EmitTypeException();
         }
 
         return array(
             'type' => $type,
-            'param'=> $param
+            'param'=> $args
         );
     }
 
@@ -98,11 +98,7 @@ class SimpleEvent
         }
 
         if(is_callable($this->functions[$arr['type']])){
-            if($arr['param'] !== null) {
-                $return = call_user_func_array($this->functions[$arr['type']], $arr['param']);
-            } else {
-                $return = call_user_func($this->functions[$arr['type']]);
-            }
+            $return = call_user_func_array($this->functions[$arr['type']], $arr['param']);
 
             $this->descCount($arr['type']);
         }
