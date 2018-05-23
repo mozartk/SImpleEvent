@@ -174,4 +174,17 @@ class SimpleEventTest extends TestCase
         $event->remove($type);
         $event->emit($type);
     }
+
+    /**
+     * @expectedException \mozartk\SimpleEvent\Exception\EmitTypeException
+     */
+    public function testMissEmitType()
+    {
+        $type = "testEvent";
+        $event = new SimpleEvent();
+        $event->set($type, function(){
+            return 1;
+        });
+        $event->emit();
+    }
 }
