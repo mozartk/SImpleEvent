@@ -9,7 +9,9 @@
 This is a simple PHP event implementation.  
 
 ## Installation
-Coming soon.
+```bash
+composer require mozartk/simple-event
+```
   
 ## Basic Usage
 ### How to run
